@@ -1,2 +1,3 @@
 __pycache__/
 *.pyc
+django_toolbox.egg-info

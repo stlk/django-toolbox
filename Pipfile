@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+black = "*"
+
+[dev-packages]
+responses = "*"
+requests = "*"
+pre-commit = "*"
+black = "*"
+django = "*"
+shopifyapi = "*"
+django-shopify-auth = "*"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
