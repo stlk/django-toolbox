@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="django-toolbox",
-    version="1.0.0",
+    version="1.1.0",
     author="Josef Rousek",
     author_email="josef@rousek.name",
     packages=["django_toolbox", "django_toolbox.apps", "django_toolbox.apps.billing"],
