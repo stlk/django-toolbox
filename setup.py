@@ -9,4 +9,11 @@ setup(
     url="https://github.com/stlk/django-toolbox",
     license="MIT",
     description="Collection of useful Django snippets",
+    install_requires=[
+        "django>=2",
+        "shopifyapi>=3",
+        "django-shopify-auth",
+        "pyjwt",
+        "requests",
+    ],
 )

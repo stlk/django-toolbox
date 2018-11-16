@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% block content_title %}<h1>Generate discount</h1>{% endblock %}
+
+{% block content %}
+
+<div id="content-main">
+  {% if token %}
+    <h3>Your token:</h3>
+    <input type="text" style="width:100%;" value="{{token}}" />
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Generate">
+    </form>
+  {% endif %}
+</div>
+
+{% endblock %}

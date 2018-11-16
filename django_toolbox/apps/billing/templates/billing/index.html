@@ -1,0 +1,28 @@
+{% extends "admin/index.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  #django-toolbox table {
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+{{ block.super }}
+<div id="django-toolbox">
+  <div class="module">
+    <table>
+      <caption>Billing</caption>
+      <tbody>
+        <tr>
+          <th>
+            <a href="{% url 'billing:generate-discount' %}">Generate discount</a>
+          </th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

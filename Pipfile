@@ -3,14 +3,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[packages]
-black = "*"
-
 [dev-packages]
+black = "*"
+pyjwt = "*"
 responses = "*"
 requests = "*"
 pre-commit = "*"
-black = "*"
 django = "*"
 shopifyapi = "*"
 django-shopify-auth = "*"

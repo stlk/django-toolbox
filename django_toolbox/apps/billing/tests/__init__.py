@@ -19,5 +19,7 @@ class ShopifyViewTest(TestCase):
         mck.current().currency = "CZK"
         self.addCleanup(self.shop_patcher.stop)
 
-        self.shop = AuthAppShopUser.objects.create()
+        self.shop = AuthAppShopUser.objects.create(
+            myshopify_domain="test.myshopify.com"
+        )
         self.client.force_login(self.shop)
