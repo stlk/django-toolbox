@@ -5,7 +5,6 @@ from django.views.generic.edit import FormView
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from .mixins import ShopifyLoginRequiredMixin
-from .signals import app_installed
 from . import pricing
 from .forms import DiscountTokenForm
 
@@ -28,7 +27,6 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
         ) and not shopify.RecurringApplicationCharge.current()
 
     def get(self, request):
-        app_installed.send(sender=self.__class__, request=request)
         with request.user.session:
             if self.should_charge():
                 return self.create_charge(request)
