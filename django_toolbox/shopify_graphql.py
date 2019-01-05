@@ -33,7 +33,7 @@ def _run_query(token: str, myshopify_domain: str, query: str):
     headers = {"X-Shopify-Access-Token": token, "Content-Type": "application/graphql"}
     url = f"https://{myshopify_domain}/admin/api/graphql.json"
 
-    response = requests.post(url, headers=headers, data=query)
+    response = requests.post(url, headers=headers, data=query, timeout=10)
     response.raise_for_status()
     content = response.json()
     _check_for_errors(content)
