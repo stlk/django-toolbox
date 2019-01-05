@@ -39,11 +39,18 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
 
     template_name = "billing/charge-result.html"
 
+    def set_currency(self, user):
+        if hasattr(user, "currency"):
+            user.currency = self.shop.currency
+            user.save(update_fields=["currency"])
+
     def get(self, request):
         with request.user.session:
             charge = shopify.RecurringApplicationCharge.find(request.GET["charge_id"])
             if charge.status == "accepted":
                 charge.activate()
+
+        self.set_currency(request.user)
 
         return render(
             request,
