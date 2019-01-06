@@ -11,7 +11,7 @@ from .forms import DiscountTokenForm
 
 class CreateChargeView(ShopifyLoginRequiredMixin, View):
     def create_charge(self, request):
-        charge = pricing.create_charge(request)
+        charge = pricing.create_charge(request, self.shop)
 
         return render(
             request, "billing/redirect.html", {"redirect": charge.confirmation_url}
@@ -24,7 +24,7 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
 
         return (
             settings.SHOPIFY_APP_TEST_CHARGE
-            or not self.shop.plan_name in ["affiliate", "staff_business"]
+            or not self.shop.plan_name in ["affiliate", "staff_business", "trial"]
         ) and not shopify.RecurringApplicationCharge.current()
 
     def get(self, request):

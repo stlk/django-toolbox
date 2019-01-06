@@ -2,6 +2,11 @@ import sys
 import django
 from django.conf import settings
 
+
+def billing_function(shop):
+    return (5, 3, "test subscription")
+
+
 configuration = {
     "DEBUG": True,
     "DATABASES": {"default": {"ENGINE": "django.db.backends.sqlite3"}},
@@ -24,8 +29,7 @@ configuration = {
     "SHOPIFY_APP_IS_EMBEDDED": True,
     "SHOPIFY_APP_DEV_MODE": False,
     "SHOPIFY_APP_TEST_CHARGE": False,
-    "BILLING_PRICE": 5,
-    "BILLING_TRIAL_DAYS": 3,
+    "BILLING_FUNCTION": billing_function,
     "BILLING_CHARGE_NAME": "test subscription",
     "BILLING_REDIRECT_URL": "/",
     "MIDDLEWARE": [

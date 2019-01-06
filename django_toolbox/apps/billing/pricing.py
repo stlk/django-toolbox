@@ -34,21 +34,25 @@ def save_discount_to_cookie(token, request):
     return decoded_token
 
 
-def get_price_and_trial_days(request):
+def get_price_and_trial_days(request, shop):
     try:
         token = request.session["discount_token"]
         decoded_token = decode_token(token)
         assert is_token_valid(decoded_token)
-        return (decoded_token["price"], decoded_token["trial_days"])
+        return (
+            decoded_token["price"],
+            decoded_token["trial_days"],
+            settings.BILLING_CHARGE_NAME,
+        )
     except:
-        return (settings.BILLING_PRICE, settings.BILLING_TRIAL_DAYS)
+        return settings.BILLING_FUNCTION(shop)
 
 
-def create_charge(request):
-    price, trial_days = get_price_and_trial_days(request)
+def create_charge(request, shop):
+    price, trial_days, name = get_price_and_trial_days(request, shop)
     return shopify.RecurringApplicationCharge.create(
         {
-            "name": settings.BILLING_CHARGE_NAME,
+            "name": name,
             "price": price,
             "return_url": request.build_absolute_uri(
                 reverse("billing:activate-charge")
