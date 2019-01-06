@@ -31,7 +31,7 @@ configuration = {
     "SHOPIFY_APP_TEST_CHARGE": False,
     "BILLING_FUNCTION": billing_function,
     "BILLING_CHARGE_NAME": "test subscription",
-    "BILLING_REDIRECT_URL": "/",
+    "BILLING_REDIRECT_URL": "/success/",
     "MIDDLEWARE": [
         "django.middleware.common.CommonMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",

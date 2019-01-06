@@ -18,17 +18,19 @@ class AuthAppShopUserWithCurrency(AbstractShopUser):
 @patch("shopify.RecurringApplicationCharge.find", autospec=True)
 class ActivateChargeViewTest(ShopifyViewTest):
     def test_sucessfully_activates_charge(self, charge_find):
-        charge_find.return_value.status = "active"
-        charge_find.return_value.attributes = {"status": "active"}
+        charge_find.return_value.status = "accepted"
+        charge_find.return_value.attributes = {"status": "accepted"}
+        # charge_find.return_value.activate = lambda: None
 
         response = self.client.get(reverse("billing:activate-charge") + "?charge_id=1")
 
-        self.assertContains(response, "Thank you")
+        self.assertRedirects(response, expected_url="/success/")
 
     @override_settings(AUTH_USER_MODEL="shopify_auth.AuthAppShopUserWithCurrency")
     def test_sets_currency(self, charge_find):
-        charge_find.return_value.status = "active"
-        charge_find.return_value.attributes = {"status": "active"}
+        charge_find.return_value.status = "accepted"
+        charge_find.return_value.attributes = {"status": "accepted"}
+        # charge_find.return_value.activate = lambda: None
 
         self.shop = AuthAppShopUserWithCurrency.objects.create(
             myshopify_domain="test.myshopify.com"

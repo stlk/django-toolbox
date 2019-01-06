@@ -49,8 +49,8 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
             charge = shopify.RecurringApplicationCharge.find(request.GET["charge_id"])
             if charge.status == "accepted":
                 charge.activate()
-
-        self.set_currency(request.user)
+                self.set_currency(request.user)
+                return redirect(settings.BILLING_REDIRECT_URL)
 
         return render(
             request,
