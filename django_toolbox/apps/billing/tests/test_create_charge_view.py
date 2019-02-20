@@ -1,11 +1,20 @@
 from django.test import override_settings
 from django.shortcuts import reverse
+from django.db import models
 from unittest.mock import patch
+from shopify_auth.models import AbstractShopUser
 import shopify
 
 from ..pricing import generate_token
 from ..views import CreateChargeView
 from . import ShopifyViewTest
+
+
+class AuthAppShopUserWithCurrency(AbstractShopUser):
+    class Meta:
+        app_label = "shopify_auth"
+
+    currency = models.CharField(max_length=50)
 
 
 class CreateChargeViewTest(ShopifyViewTest):
@@ -86,3 +95,22 @@ class CreateChargeViewTest(ShopifyViewTest):
         view.shop = shopify.Shop()
         view.shop.plan_name = "affiliate"
         self.assertTrue(view.should_charge())
+
+    @override_settings(SHOPIFY_APP_TEST_CHARGE=False)
+    @override_settings(AUTH_USER_MODEL="shopify_auth.AuthAppShopUserWithCurrency")
+    @patch("shopify.RecurringApplicationCharge", autospec=True)
+    def test_should_charge_return_false_when_there_IS_charge_and_shop_is_not_dev(
+        self, charge_mock
+    ):
+        charge_mock.current.return_value = shopify.RecurringApplicationCharge()
+
+        self.shop = AuthAppShopUserWithCurrency.objects.create(
+            myshopify_domain="test-currency.myshopify.com"
+        )
+        self.client.force_login(self.shop)
+
+        response = self.client.get("/")
+        self.assertRedirects(response, expected_url="/success/")
+
+        user = AuthAppShopUserWithCurrency.objects.get()
+        self.assertEqual(user.currency, "CZK")

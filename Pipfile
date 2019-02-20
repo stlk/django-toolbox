@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-black = "*"
+black = "==18.9b0"
 pyjwt = "*"
 responses = "*"
 requests = "*"
@@ -15,6 +15,3 @@ django-shopify-auth = "*"
 
 [requires]
 python_version = "3.7"
-
-[pipenv]
-allow_prereleases = true

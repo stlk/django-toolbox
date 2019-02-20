@@ -10,6 +10,11 @@ from .forms import DiscountTokenForm
 
 
 class CreateChargeView(ShopifyLoginRequiredMixin, View):
+    def set_currency(self, user):
+        if hasattr(user, "currency"):
+            user.currency = self.shop.currency
+            user.save(update_fields=["currency"])
+
     def create_charge(self, request):
         charge = pricing.create_charge(request, self.shop)
 
@@ -29,6 +34,7 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
 
     def get(self, request):
         with request.user.session:
+            self.set_currency(request.user)
             if self.should_charge():
                 return self.create_charge(request)
 
@@ -39,17 +45,11 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
 
     template_name = "billing/charge-result.html"
 
-    def set_currency(self, user):
-        if hasattr(user, "currency"):
-            user.currency = self.shop.currency
-            user.save(update_fields=["currency"])
-
     def get(self, request):
         with request.user.session:
             charge = shopify.RecurringApplicationCharge.find(request.GET["charge_id"])
             if charge.status == "accepted":
                 charge.activate()
-                self.set_currency(request.user)
                 return redirect(settings.BILLING_REDIRECT_URL)
 
         return render(
