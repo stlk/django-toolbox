@@ -5,7 +5,6 @@ from unittest.mock import patch
 from shopify_auth.models import AbstractShopUser
 import shopify
 
-from ..pricing import generate_token
 from ..views import CreateChargeView
 from . import ShopifyViewTest
 
@@ -21,17 +20,6 @@ class CreateChargeViewTest(ShopifyViewTest):
     @patch("shopify.RecurringApplicationCharge", autospec=True)
     def test_redirects_to_charge(self, charge_mock):
         charge_mock.current.return_value = None
-
-        with self.assertTemplateUsed("billing/redirect.html"):
-            response = self.client.get("/")
-
-    @patch("shopify.RecurringApplicationCharge", autospec=True)
-    def test_redirects_to_charge_with_discount(self, charge_mock):
-        charge_mock.current.return_value = None
-        token = generate_token(
-            {"price": 5, "trial_days": 10, "shop": "test.myshopify.com"}
-        )
-        self.client.get(reverse("billing:discount", args=(token,)))
 
         with self.assertTemplateUsed("billing/redirect.html"):
             response = self.client.get("/")
