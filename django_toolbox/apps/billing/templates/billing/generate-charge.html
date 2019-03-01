@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+
+{% block content_title %}<h1>Generate charge</h1>{% endblock %}
+
+{% block content %}
+
+<div id="content-main">
+  {% if confirmation_url %}
+    <h3>Confirmation URL:</h3>
+    <input type="text" style="width:100%;" value="{{confirmation_url}}" />
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <table>
+      {{ form.as_table }}
+      </table>
+      <input type="submit" value="Generate">
+    </form>
+  {% endif %}
+</div>
+
+<style>
+input {
+  width: 400px;
+}
+</style>
+{% endblock %}

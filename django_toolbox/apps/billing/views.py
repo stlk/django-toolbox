@@ -3,9 +3,11 @@ from django.shortcuts import render, redirect, reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from .mixins import ShopifyLoginRequiredMixin
 from . import pricing
+from .forms import RecurringApplicationChargeForm
 
 
 class CreateChargeView(ShopifyLoginRequiredMixin, View):
@@ -56,3 +58,44 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
             self.template_name,
             {"charge": charge.attributes, "shop": self.shop},
         )
+
+
+class GenerateChargeView(PermissionRequiredMixin, FormView):
+    permission_required = "is_staff"
+    form_class = RecurringApplicationChargeForm
+    template_name = "billing/generate-charge.html"
+
+    def get_initial(self):
+        shop = get_user_model().objects.get(id=self.request.GET.get("shop_id"))
+        with shop.session:
+            try:
+                charge = shopify.RecurringApplicationCharge.current()
+            except:
+                return {"shop": "error while getting current charge"}
+        return {
+            "shop": shop.myshopify_domain,
+            "name": charge.name,
+            "price": charge.price,
+            "trial_days": charge.trial_days,
+        }
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        shop = get_user_model().objects.get(myshopify_domain=data["shop"])
+        with shop.session:
+            charge = shopify.RecurringApplicationCharge.create(
+                {
+                    "name": data["name"],
+                    "price": str(data["price"]),
+                    "return_url": self.request.build_absolute_uri(
+                        reverse("billing:activate-charge")
+                    ),
+                    "trial_days": data["trial_days"],
+                    "test": settings.SHOPIFY_APP_TEST_CHARGE,
+                }
+            )
+            return render(
+                self.request,
+                self.template_name,
+                {"confirmation_url": charge.confirmation_url},
+            )
