@@ -29,9 +29,13 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
         """
 
         return (
-            settings.SHOPIFY_APP_TEST_CHARGE
-            or not self.shop.plan_name in ["affiliate", "staff_business", "trial"]
-        ) and not shopify.RecurringApplicationCharge.current()
+            settings.BILLING_FUNCTION
+            and (
+                settings.SHOPIFY_APP_TEST_CHARGE
+                or not self.shop.plan_name in ["affiliate", "staff_business", "trial"]
+            )
+            and not shopify.RecurringApplicationCharge.current()
+        )
 
     def get(self, request):
         with request.user.session:

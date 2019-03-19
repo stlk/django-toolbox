@@ -72,6 +72,18 @@ class CreateChargeViewTest(ShopifyViewTest):
         view.shop.plan_name = "staff_business"
         self.assertFalse(view.should_charge())
 
+    @override_settings(BILLING_FUNCTION=None)
+    @patch("shopify.RecurringApplicationCharge", autospec=True)
+    def test_should_charge_return_false_when_there_is_no_charge_and_billing_is_disabled(
+        self, charge_mock
+    ):
+        charge_mock.current.return_value = None
+
+        view = CreateChargeView()
+        view.shop = shopify.Shop()
+        view.shop.plan_name = "shopify"
+        self.assertFalse(view.should_charge())
+
     @override_settings(SHOPIFY_APP_TEST_CHARGE=True)
     @patch("shopify.RecurringApplicationCharge", autospec=True)
     def test_should_charge_return_true_when_there_is_no_charge_and_shop_IS_dev_and_test_is_enabled(
