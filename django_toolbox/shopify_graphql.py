@@ -4,8 +4,6 @@ import requests
 
 logger = logging.getLogger("django.shopify")
 
-LONG_REQUEST_THRESHOLD = 1000
-
 
 class GraphQLResponseError(Exception):
     def __init__(self, errors):
@@ -45,17 +43,9 @@ def _run_query(token: str, myshopify_domain: str, query: str):
 
 
 def run_query(self, *args, **kwargs):
-    start = time.time()
     while True:
         try:
-            response = _run_query(self, *args, **kwargs)
-            duration = time.time() - start
-            duration_ms = int(round(duration * 1000))
-            if duration_ms > LONG_REQUEST_THRESHOLD:
-                logger.warning(f"Long request. {args} duration_ms: {duration_ms}")
-            else:
-                logger.info(f"{args} duration_ms: {duration_ms}")
-            return response
+            return _run_query(self, *args, **kwargs)
         except GraphQLResponseError as e:
             if [error for error in e.errors if error["message"] == "Throttled"]:
                 retry_after = 2

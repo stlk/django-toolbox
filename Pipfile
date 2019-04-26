@@ -5,12 +5,11 @@ name = "pypi"
 
 [dev-packages]
 black = "==18.9b0"
-pyjwt = "*"
 responses = "*"
 requests = "*"
 pre-commit = "*"
 django = "*"
-shopifyapi = "*"
+shopifyapi = "==4.0.0"
 django-shopify-auth = "*"
 
 [requires]
