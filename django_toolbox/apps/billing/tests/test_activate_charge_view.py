@@ -1,4 +1,3 @@
-from django.test import override_settings
 from django.shortcuts import reverse
 from unittest.mock import patch
 

@@ -5,6 +5,10 @@ from django.shortcuts import reverse
 
 def create_charge(request, shop):
     price, trial_days, name = settings.BILLING_FUNCTION(shop)
+    if request.session.get("promo_code") == "carson":
+        name = f"{name} - Carson Promo"
+        price = price * 0.75
+
     return shopify.RecurringApplicationCharge.create(
         {
             "name": name,

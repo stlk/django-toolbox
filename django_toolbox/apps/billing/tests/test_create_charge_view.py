@@ -24,6 +24,25 @@ class CreateChargeViewTest(ShopifyViewTest):
         with self.assertTemplateUsed("billing/redirect.html"):
             response = self.client.get("/")
 
+    @patch("shopify.RecurringApplicationCharge", autospec=True)
+    def test_creates_charge_with_discount(self, charge_mock):
+        charge_mock.current.return_value = None
+
+        response = self.client.get("/code/carson/")
+        self.assertRedirects(response, fetch_redirect_response=False, expected_url="/")
+
+        with self.assertTemplateUsed("billing/redirect.html"):
+            response = self.client.get("/")
+            charge_mock.create.assert_called_once_with(
+                {
+                    "name": "test subscription - Carson Promo",
+                    "price": 3.75,
+                    "return_url": "http://testserver/activate-charge",
+                    "trial_days": 3,
+                    "test": False,
+                }
+            )
+
     @override_settings(SHOPIFY_APP_TEST_CHARGE=False)
     @patch("shopify.RecurringApplicationCharge", autospec=True)
     def test_should_charge_return_true_when_there_is_no_charge_and_shop_is_not_dev(

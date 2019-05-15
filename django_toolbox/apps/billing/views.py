@@ -64,6 +64,12 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
         )
 
 
+class PromoCodeView(View):
+    def get(self, request, code):
+        request.session["promo_code"] = code
+        return redirect(reverse("billing:create-charge"))
+
+
 class GenerateChargeView(PermissionRequiredMixin, FormView):
     permission_required = "is_staff"
     form_class = RecurringApplicationChargeForm
