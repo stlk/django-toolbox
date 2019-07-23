@@ -80,6 +80,11 @@ class GenerateChargeView(PermissionRequiredMixin, FormView):
         with shop.session:
             try:
                 charge = shopify.RecurringApplicationCharge.current()
+                if not charge:
+                    return {
+                        "shop": shop.myshopify_domain,
+                        "name": "this shop has no active charge",
+                    }
             except:
                 return {"shop": "error while getting current charge"}
         return {
