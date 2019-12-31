@@ -2,6 +2,8 @@ import time
 import logging
 import requests
 
+import elasticapm
+
 logger = logging.getLogger("django.shopify")
 
 
@@ -42,16 +44,17 @@ def _run_query(token: str, myshopify_domain: str, query: str):
     return content
 
 
-def run_query(self, *args, **kwargs):
+def run_query(*args, **kwargs):
     while True:
         try:
-            return _run_query(self, *args, **kwargs)
+            return _run_query(*args, **kwargs)
         except GraphQLResponseError as e:
             if [error for error in e.errors if error["message"] == "Throttled"]:
-                retry_after = 2
+                retry_after = 1
                 logger.warning(
                     f"Service exceeds Shopify API call limit, will retry to send request in {retry_after} seconds."
                 )
-                time.sleep(retry_after)
+                with elasticapm.capture_span("GraphQL Throttled"):
+                    time.sleep(retry_after)
             else:
                 raise

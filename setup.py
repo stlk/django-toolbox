@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-toolbox",
-    version="1.3.0",
+    version="1.4.0",
     author="Josef Rousek",
     author_email="josef@rousek.name",
     packages=find_packages(
@@ -12,5 +12,11 @@ setup(
     url="https://github.com/stlk/django-toolbox",
     license="MIT",
     description="Collection of useful Django snippets",
-    install_requires=["django>=2", "shopifyapi>=3", "django-shopify-auth", "requests"],
+    install_requires=[
+        "django>=2",
+        "shopifyapi>=5",
+        "django-shopify-auth",
+        "requests",
+        "elastic-apm",
+    ],
 )

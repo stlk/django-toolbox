@@ -4,13 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-black = "==18.9b0"
+black = "==19.10b0"
 responses = "*"
 requests = "*"
 pre-commit = "*"
 django = "*"
-shopifyapi = "==4.0.0"
+shopifyapi = "*"
 django-shopify-auth = "*"
+elastic-apm = "*"
 
 [requires]
 python_version = "3.7"
