@@ -1,8 +1,10 @@
-import time
 import logging
-import requests
+import time
 
 import elasticapm
+import requests
+
+from django.conf import settings
 
 logger = logging.getLogger("django.shopify")
 
@@ -31,7 +33,7 @@ def _check_for_errors(content):
 
 def _run_query(token: str, myshopify_domain: str, query: str):
     headers = {"X-Shopify-Access-Token": token, "Content-Type": "application/graphql"}
-    url = f"https://{myshopify_domain}/admin/api/graphql.json"
+    url = f"https://{myshopify_domain}/admin/api/{settings.SHOPIFY_APP_API_VERSION}/graphql.json"
 
     response = requests.post(url, headers=headers, data=query, timeout=10)
     response.raise_for_status()

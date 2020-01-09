@@ -29,6 +29,7 @@ configuration = {
     "SHOPIFY_APP_IS_EMBEDDED": True,
     "SHOPIFY_APP_DEV_MODE": False,
     "SHOPIFY_APP_TEST_CHARGE": False,
+    "SHOPIFY_APP_API_VERSION": "2020-01",
     "BILLING_FUNCTION": billing_function,
     "BILLING_REDIRECT_URL": "/success/",
     "MIDDLEWARE": [

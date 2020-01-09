@@ -1,32 +1,17 @@
 import unittest
+
 import responses
 
-from django_toolbox.shopify_graphql import run_query, GraphQLResponseError
+from django.conf import settings
+from django_toolbox.shopify_graphql import GraphQLResponseError, run_query
+from django_toolbox.shopify_graphql_test import mock_response
 
 myshopify_domain = "example.com"
 
 
 class GraphQLClientTest(unittest.TestCase):
     def set_success(self):
-        responses.add(
-            responses.POST,
-            f"https://{myshopify_domain}/admin/api/graphql.json",
-            json={
-                "data": {},
-                "extensions": {
-                    "cost": {
-                        "requestedQueryCost": 253,
-                        "actualQueryCost": 6,
-                        "throttleStatus": {
-                            "maximumAvailable": 1000,
-                            "currentlyAvailable": 994,
-                            "restoreRate": 50,
-                        },
-                    }
-                },
-            },
-            status=200,
-        )
+        mock_response(myshopify_domain, {})
 
     @responses.activate
     def test_success(self):
@@ -39,7 +24,7 @@ class GraphQLClientTest(unittest.TestCase):
 
         responses.add(
             responses.POST,
-            f"https://{myshopify_domain}/admin/api/graphql.json",
+            f"https://{myshopify_domain}/admin/api/{settings.SHOPIFY_APP_API_VERSION}/graphql.json",
             json={
                 "errors": [
                     {
@@ -60,7 +45,7 @@ class GraphQLClientTest(unittest.TestCase):
 
         responses.add(
             responses.POST,
-            f"https://{myshopify_domain}/admin/api/graphql.json",
+            f"https://{myshopify_domain}/admin/api/{settings.SHOPIFY_APP_API_VERSION}/graphql.json",
             json={
                 "errors": [{"message": "Throttled"}],
                 "extensions": {
