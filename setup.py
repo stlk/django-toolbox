@@ -18,5 +18,7 @@ setup(
         "django-shopify-auth",
         "requests",
         "elastic-apm",
+        "social-auth-app-django",
+        "python-jose",
     ],
 )

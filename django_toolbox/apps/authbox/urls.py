@@ -1,0 +1,9 @@
+from django.urls import path, include
+from . import views
+
+app_name = "authbox"
+
+urlpatterns = [
+    path('logout', views.logout),
+    path('', include('social_django.urls', namespace="social")),
+]
