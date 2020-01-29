@@ -4,11 +4,6 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import logout as log_out
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-
-
-def new_user(request):
-    return render(request, "authbox/new_user.html")
 
 
 def logout(request):
