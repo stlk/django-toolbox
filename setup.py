@@ -20,5 +20,6 @@ setup(
         "elastic-apm",
         "social-auth-app-django",
         "python-jose",
+        "ua-parser",
     ],
 )
