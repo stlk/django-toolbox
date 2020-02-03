@@ -3,8 +3,12 @@ from ua_parser import user_agent_parser
 
 
 def should_set_none(request):
+    user_agent = request.META.get("HTTP_USER_AGENT")
+    if not user_agent:
+        return True
+
     try:
-        parsed_string = user_agent_parser.Parse(request.META["HTTP_USER_AGENT"])
+        parsed_string = user_agent_parser.Parse(user_agent)
         browser = parsed_string["user_agent"]
         os = parsed_string["os"]
 
