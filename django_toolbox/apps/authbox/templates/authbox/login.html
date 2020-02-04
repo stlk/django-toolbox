@@ -21,12 +21,22 @@
 <div id="content-main">
 
   {% if user.is_authenticated %}
-  <p class="errornote">
-    Thanks! Now please ask Josef to activate your account.
-  </p>
+    {% if  "@" in user.myshopify_domain %}
+      <p class="errornote">
+        Thanks! Now please ask Josef to activate your account.
+      </p>
+    {% else %}
+      <p class="errornote">
+        Sorry. You authenticated while logged in into the store. Please Logout and try again.
+      </p>
+      <form method="POST" action="{% url 'auth:disconnect' %}">
+        {% csrf_token %}
+        <button class="button">Logout</button>
+      </form>
+    {% endif %}
+  {% else %}
+    <a href="{% url 'auth:social:begin' 'auth0' %}" class="button">Login</a>
   {% endif %}
-
-  <a href="{% url 'auth:social:begin' 'auth0' %}" class="button">Login</a>
 
 </div>
 {% endblock %}

@@ -4,6 +4,13 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import logout as log_out
 from django.http import HttpResponseRedirect
+from social_django.views import disconnect as social_disconnect
+
+
+def disconnect(request):
+    response = social_disconnect(request, "auth0")
+    log_out(request)
+    return response
 
 
 def logout(request):
