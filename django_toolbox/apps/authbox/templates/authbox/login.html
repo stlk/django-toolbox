@@ -23,11 +23,11 @@
   {% if user.is_authenticated %}
     {% if  "@" in user.myshopify_domain %}
       <p class="errornote">
-        Thanks! Now please ask Josef to activate your account.
+        Thanks {{user.myshopify_domain}}! Now please ask Josef to activate your account.
       </p>
     {% else %}
       <p class="errornote">
-        Sorry. You authenticated while logged in into the store. Please Logout and try again.
+        Sorry. You're currently logged in as {{user.myshopify_domain}}. Please Logout and try again.
       </p>
       <form method="POST" action="{% url 'auth:disconnect' %}">
         {% csrf_token %}
