@@ -12,6 +12,7 @@ django = "*"
 shopifyapi = "*"
 django-shopify-auth = "*"
 elastic-apm = "*"
+django-rq = "*"
 
 [requires]
 python_version = "3.7"
