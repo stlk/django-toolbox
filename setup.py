@@ -21,5 +21,6 @@ setup(
         "social-auth-app-django",
         "python-jose",
         "ua-parser",
+        "django-rq",
     ],
 )
