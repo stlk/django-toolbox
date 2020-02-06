@@ -1,4 +1,3 @@
-import json
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -22,3 +21,13 @@ def logout(request):
         return_to,
     )
     return HttpResponseRedirect(logout_url)
+
+
+def override_login(request):
+    """
+    Allow to see merchant's analytics for staff user.
+    """
+    if request.user.is_staff:
+        request.session["shop_id"] = request.GET["shop_id"]
+        
+    return HttpResponseRedirect("/dashboard/analytics")
