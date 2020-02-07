@@ -1,13 +1,15 @@
 import shopify
-from django.shortcuts import render, redirect, reverse
+from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
+from django.shortcuts import redirect, render, reverse
+from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from .mixins import ShopifyLoginRequiredMixin
+
 from . import pricing
 from .forms import RecurringApplicationChargeForm
+from .mixins import ShopifyLoginRequiredMixin
 
 
 class CreateChargeView(ShopifyLoginRequiredMixin, View):
@@ -32,7 +34,8 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
             settings.BILLING_FUNCTION
             and (
                 settings.SHOPIFY_APP_TEST_CHARGE
-                or not self.shop.plan_name in ["affiliate", "staff_business", "trial"]
+                or not self.shop.plan_name
+                in ["partner_test", "affiliate", "staff_business", "trial"]
             )
             and not shopify.RecurringApplicationCharge.current()
         )
@@ -70,8 +73,8 @@ class PromoCodeView(View):
         return redirect(reverse("billing:create-charge"))
 
 
-class GenerateChargeView(PermissionRequiredMixin, FormView):
-    permission_required = "is_staff"
+@method_decorator(staff_member_required, name="dispatch")
+class GenerateChargeView(FormView):
     form_class = RecurringApplicationChargeForm
     template_name = "billing/generate-charge.html"
 
