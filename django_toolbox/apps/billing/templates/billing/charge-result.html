@@ -1,1 +1,25 @@
-Payment has been cancelled 😥
+<link rel="stylesheet" href="https://sdks.shopifycdn.com/polaris/2.0.0/polaris.min.css" />
+
+<div class="Polaris-EmptyState">
+    <div class="Polaris-EmptyState__Section">
+        <div class="Polaris-EmptyState__DetailsContainer">
+            <div class="Polaris-EmptyState__Details">
+                <div class="Polaris-TextContainer">
+                    <p class="Polaris-DisplayText Polaris-DisplayText--sizeMedium">{{ shop.name }}</p>
+                    <div class="Polaris-EmptyState__Content">
+                        {% if charge %}
+                            <p>Payment has been cancelled 😥</p>
+                        {% else %}
+                            <p>
+                                Oops! Something went wrong while communicating with Shopify servers. Please retry the installation using the button below. If the issue persists, please let us know at info@digismoothie.com.
+                            </p>
+                            <a href={% url 'billing:create-charge' %}>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="Polaris-EmptyState__Actions">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
