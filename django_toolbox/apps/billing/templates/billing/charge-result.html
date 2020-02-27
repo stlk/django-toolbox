@@ -13,7 +13,10 @@
                             <p>
                                 Oops! Something went wrong while communicating with Shopify servers. Please retry the installation using the button below. If the issue persists, please let us know at info@digismoothie.com.
                             </p>
-                            <a href={% url 'billing:create-charge' %}>
+                            <br>
+                            <div class="Polaris-Button Polaris-Button--primary">
+                                <a href={% url 'billing:create-charge' %} style="text-decoration:none;">Retry installation</a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
