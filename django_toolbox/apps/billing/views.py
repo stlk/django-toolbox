@@ -6,6 +6,7 @@ from django.shortcuts import redirect, render, reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
+from pyactiveresource.connection import ResourceNotFound, ResourceInvalid
 
 from . import pricing
 from .forms import RecurringApplicationChargeForm
@@ -55,16 +56,17 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
 
     def get(self, request):
         with request.user.session:
-            charge = shopify.RecurringApplicationCharge.find(request.GET["charge_id"])
-            if charge.status == "accepted":
-                charge.activate()
-                return redirect(settings.BILLING_REDIRECT_URL)
+            try:
+                charge = shopify.RecurringApplicationCharge.find(
+                    request.GET["charge_id"]
+                )
+                if charge.status == "accepted":
+                    charge.activate()
+                    return redirect(settings.BILLING_REDIRECT_URL)
+            except (ResourceNotFound, ResourceInvalid):
+                pass
 
-        return render(
-            request,
-            self.template_name,
-            {"charge": charge.attributes, "shop": self.shop},
-        )
+        return render(request, self.template_name, {"shop": self.shop})
 
 
 class PromoCodeView(View):
