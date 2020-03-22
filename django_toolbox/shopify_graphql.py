@@ -47,11 +47,16 @@ def _run_query(token: str, myshopify_domain: str, query: str):
 
 
 def run_query(*args, **kwargs):
+    retry_count = 0
     while True:
         try:
             return _run_query(*args, **kwargs)
         except GraphQLResponseError as e:
             if [error for error in e.errors if error["message"] == "Throttled"]:
+                if retry_count == 2:
+                    raise
+                retry_count += 1
+
                 retry_after = 1
                 logger.warning(
                     f"Service exceeds Shopify API call limit, will retry to send request in {retry_after} seconds."
