@@ -32,7 +32,7 @@ class SamesiteCookieMiddleware:
         response = self.get_response(request)
         if should_set_none(request):
             for cookie in response.cookies.keys():
-                if cookie in ["sessionid", "csrftoken"]:
+                if cookie in ["sessionid", "csrftoken", "a_third_party_cookie"]:
                     response.cookies[cookie]["samesite"] = "None"
 
         return response
