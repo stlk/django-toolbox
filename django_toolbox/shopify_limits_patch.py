@@ -26,6 +26,7 @@ def patch_shopify_with_limits():
     func = ShopifyConnection._open
 
     def patched_open(self, *args, **kwargs):
+        retry_count = 0
         while True:
             try:
                 response = func(self, *args, **kwargs)
@@ -34,11 +35,15 @@ def patch_shopify_with_limits():
 
             except pyactiveresource.connection.ClientError as e:
                 if e.response.code == 429:
+                    if retry_count == 2:
+                        raise
+
                     retry_after = float(e.response.headers.get("Retry-After", 2))
                     logger.error(
                         f"Service exceeds Shopify API call limit, will retry to send request in {retry_after} seconds."
                     )
                     time.sleep(retry_after)
+                    retry_count += 1
                 else:
                     raise
 
