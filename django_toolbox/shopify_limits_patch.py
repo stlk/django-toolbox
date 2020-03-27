@@ -26,6 +26,7 @@ def patch_shopify_with_limits():
     func = ShopifyConnection._open
 
     def patched_open(self, *args, **kwargs):
+        self.timeout = 15
         retry_count = 0
         while True:
             try:
