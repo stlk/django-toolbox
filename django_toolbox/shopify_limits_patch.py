@@ -41,7 +41,7 @@ def patch_shopify_with_limits():
 
                     retry_after = float(e.response.headers.get("Retry-After", 2))
                     logger.error(
-                        f"Service exceeds Shopify API call limit, will retry to send request in {retry_after} seconds."
+                        f"{e.url} exceeds Shopify API call limit, will retry to send request in {retry_after} seconds."
                     )
                     time.sleep(retry_after)
                     retry_count += 1
