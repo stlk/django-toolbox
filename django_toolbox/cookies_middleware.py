@@ -2,6 +2,18 @@ import logging
 from ua_parser import user_agent_parser
 
 
+def is_mac_os_10_14(os):
+    return "Mac OS X" in os["family"] and os["major"] == "10" and os["minor"] == "14"
+
+
+def is_ios_12(os):
+    return "iOS" in os["family"] and os["major"] == "12"
+
+
+def is_safari(browser):
+    return browser["family"] == "Safari"
+
+
 def should_set_none(request):
     user_agent = request.META.get("HTTP_USER_AGENT")
     if not user_agent:
@@ -14,9 +26,9 @@ def should_set_none(request):
 
         if "Chrom" in browser["family"] and int(browser["major"]) < 67:
             return False
-        if "Mac OS X" in os["family"] and os["major"] == "10" and os["minor"] == "14":
+        if is_ios_12(os):
             return False
-        if "iOS" in os["family"] and os["major"] == "12":
+        if is_mac_os_10_14(os) and is_safari(browser):
             return False
     except:
         logging.exception("User Agent resolution failed")
