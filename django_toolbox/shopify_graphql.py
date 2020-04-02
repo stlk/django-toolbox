@@ -31,11 +31,17 @@ def _check_for_errors(content):
         raise GraphQLResponseError(errors)
 
 
-def _run_query(token: str, myshopify_domain: str, query: str):
-    headers = {"X-Shopify-Access-Token": token, "Content-Type": "application/graphql"}
+def _run_query(token: str, myshopify_domain: str, query: str, variables: dict = None):
+    headers = {
+        "X-Shopify-Access-Token": token,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
     url = f"https://{myshopify_domain}/admin/api/{settings.SHOPIFY_APP_API_VERSION}/graphql.json"
 
-    response = requests.post(url, headers=headers, data=query, timeout=10)
+    data = {"query": query, "variables": variables}
+
+    response = requests.post(url, headers=headers, json=data, timeout=10)
     response.raise_for_status()
     content = response.json()
     _check_for_errors(content)
