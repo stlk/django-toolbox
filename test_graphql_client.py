@@ -11,7 +11,7 @@ myshopify_domain = "example.com"
 
 class GraphQLClientTest(unittest.TestCase):
     def set_success(self):
-        mock_response(myshopify_domain, {})
+        mock_response({})
 
     @responses.activate
     def test_success(self):

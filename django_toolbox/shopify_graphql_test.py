@@ -1,11 +1,11 @@
+import re
 import responses
-from django.conf import settings
 
 
-def mock_response(myshopify_domain, data):
+def mock_response(data):
     responses.add(
         responses.POST,
-        f"https://{myshopify_domain}/admin/api/{settings.SHOPIFY_APP_API_VERSION}/graphql.json",
+        re.compile(r".*\/graphql\.json"),
         json={
             "data": data,
             "extensions": {
