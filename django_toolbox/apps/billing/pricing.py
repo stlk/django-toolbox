@@ -2,6 +2,7 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django_toolbox.shopify_graphql import _check_for_errors, run_query
 import shopify
+from decimal import Decimal
 
 
 ANNUAL_CHARGE_MUTATION = """mutation AnnualSubscriptionCreate($name: String!, $return_url: URL!, $trial_days: Int!, $amount: Decimal!){
@@ -55,6 +56,7 @@ SUBSCRIPTION_QUERY = """
   }
 }
 """
+TWOPLACES = Decimal(10) ** -2
 
 
 def get_subscription(shop):
@@ -88,26 +90,26 @@ def create_charge(request, shop):
 def create_annual_charge(request, shop):
     subscription_node = get_subscription(shop)
 
-    if subscription_node:
-        price = subscription_node["lineItems"][0]["plan"]["pricingDetails"]["price"][
-            "amount"
-        ]
-        trial_days = subscription_node["trialDays"]
-        name = subscription_node["name"]
-        return_url = request.build_absolute_uri(reverse("billing:activate-charge"))
-        content = run_query(
-            shop.token,
-            shop.myshopify_domain,
-            ANNUAL_CHARGE_MUTATION,
-            variables={
-                "name": f"{name} - Annual",
-                "return_url": return_url,
-                "trial_days": trial_days,
-                "amount": price,
-            },
-            api_version="2020-07",
-        )
+    monthly_subscription_price = subscription_node["lineItems"][0]["plan"][
+        "pricingDetails"
+    ]["price"]["amount"]
+    annual_subscription_price = Decimal(
+        monthly_subscription_price * 80 / 100 * 12
+    ).quantize(TWOPLACES)
+    trial_days = subscription_node["trialDays"]
+    name = subscription_node["name"]
+    return_url = request.build_absolute_uri(reverse("billing:activate-charge"))
+    content = run_query(
+        shop.token,
+        shop.myshopify_domain,
+        ANNUAL_CHARGE_MUTATION,
+        variables={
+            "name": f"{name} - Annual",
+            "return_url": return_url,
+            "trial_days": trial_days,
+            "amount": annual_subscription_price,
+        },
+        api_version="2020-07",
+    )
 
-        _check_for_errors(content)
-
-        return content["data"]["appSubscriptionCreate"]["confirmationUrl"]
+    return content["data"]["appSubscriptionCreate"]["confirmationUrl"]
