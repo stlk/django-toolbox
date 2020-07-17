@@ -5,7 +5,8 @@ import shopify
 from decimal import Decimal
 
 
-ANNUAL_CHARGE_MUTATION = """mutation AnnualSubscriptionCreate($name: String!, $return_url: URL!, $trial_days: Int!, $amount: Decimal!){
+ANNUAL_CHARGE_MUTATION = """
+mutation AnnualSubscriptionCreate($name: String!, $return_url: URL!, $trial_days: Int!, $amount: Decimal!){
     appSubscriptionCreate(
         name: $name
         returnUrl: $return_url
@@ -38,8 +39,7 @@ SUBSCRIPTION_QUERY = """
   appInstallation {
     activeSubscriptions {
       name
-      status
-      currentPeriodEnd
+      trialDays
       lineItems {
         plan {
           pricingDetails {
@@ -56,6 +56,7 @@ SUBSCRIPTION_QUERY = """
   }
 }
 """
+
 TWOPLACES = Decimal(10) ** -2
 
 
@@ -63,9 +64,40 @@ def get_subscription(shop):
     content = run_query(
         shop.token, shop.myshopify_domain, SUBSCRIPTION_QUERY, api_version="2020-07",
     )
-    _check_for_errors(content)
     if content["data"]["appInstallation"]["activeSubscriptions"]:
         return content["data"]["appInstallation"]["activeSubscriptions"][0]
+
+
+def calculate_subscription_pricing(subscription_node):
+    details = subscription_node["lineItems"][0]["plan"]["pricingDetails"]
+    interval = details["interval"]
+    price = details["price"]["amount"]
+
+    if interval == "ANNUAL":
+        # we're at 80% of original price /80*100 calculates 100%
+        annual_subscription_price = Decimal(price).quantize(TWOPLACES)
+        monthly_subscription_price = Decimal(
+            annual_subscription_price / 12 / 80 * 100
+        ).quantize(TWOPLACES)
+        annual_subscription_price_monthly = Decimal(
+            annual_subscription_price / 12
+        ).quantize(TWOPLACES)
+
+    if interval == "EVERY_30_DAYS":
+        monthly_subscription_price = Decimal(price).quantize(TWOPLACES)
+        annual_subscription_price = Decimal(
+            monthly_subscription_price * 80 / 100 * 12
+        ).quantize(TWOPLACES)
+        annual_subscription_price_monthly = Decimal(
+            annual_subscription_price / 12
+        ).quantize(TWOPLACES)
+
+    return {
+        "monthly_subscription_price": monthly_subscription_price,
+        "annual_subscription_price": annual_subscription_price,
+        "annual_subscription_price_monthly": annual_subscription_price_monthly,
+        "interval": interval,
+    }
 
 
 def create_charge(request, shop):
@@ -89,13 +121,9 @@ def create_charge(request, shop):
 
 def create_annual_charge(request, shop):
     subscription_node = get_subscription(shop)
+    subscription_pricing = calculate_subscription_pricing(subscription_node)
 
-    monthly_subscription_price = subscription_node["lineItems"][0]["plan"][
-        "pricingDetails"
-    ]["price"]["amount"]
-    annual_subscription_price = Decimal(
-        monthly_subscription_price * 80 / 100 * 12
-    ).quantize(TWOPLACES)
+    annual_subscription_price = subscription_pricing["annual_subscription_price"]
     trial_days = subscription_node["trialDays"]
     name = subscription_node["name"]
     return_url = request.build_absolute_uri(reverse("billing:activate-charge"))
@@ -107,7 +135,7 @@ def create_annual_charge(request, shop):
             "name": f"{name} - Annual",
             "return_url": return_url,
             "trial_days": trial_days,
-            "amount": annual_subscription_price,
+            "amount": str(annual_subscription_price),
         },
         api_version="2020-07",
     )
