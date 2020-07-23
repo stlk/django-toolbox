@@ -1,36 +1,28 @@
 from django.conf import settings
 from django.shortcuts import reverse
-from django_toolbox.shopify_graphql import _check_for_errors, run_query
+from django_toolbox.shopify_graphql import run_query
 import shopify
 from decimal import Decimal
 
 
 ANNUAL_CHARGE_MUTATION = """
-mutation AnnualSubscriptionCreate($name: String!, $return_url: URL!, $trial_days: Int!, $amount: Decimal!){
-    appSubscriptionCreate(
-        name: $name
-        returnUrl: $return_url
-        trialDays: $trial_days
-        lineItems: [
-        {
-            plan: {
-                appRecurringPricingDetails: {
-                    price: { amount: $amount, currencyCode: USD }
-                    interval: ANNUAL
-                }
-            }
-        }
-        ]
-    ) {
-        appSubscription {
-            id
-        }
-        confirmationUrl
-        userErrors {
-            field
-            message
-        }
+mutation AnnualSubscriptionCreate($name: String!, $return_url: URL!, $trial_days: Int!, $amount: Decimal!, $test: Boolean) {
+  appSubscriptionCreate(
+      name: $name,
+      returnUrl: $return_url,
+      trialDays: $trial_days,
+      test: $test,
+      lineItems: [{plan: {appRecurringPricingDetails: {price: {amount: $amount, currencyCode: USD}, interval: ANNUAL}}}]
+      ) {
+    appSubscription {
+      id
     }
+    confirmationUrl
+    userErrors {
+      field
+      message
+    }
+  }
 }
 """
 
@@ -136,6 +128,7 @@ def create_annual_charge(request, shop):
             "return_url": return_url,
             "trial_days": trial_days,
             "amount": str(annual_subscription_price),
+            "test": settings.SHOPIFY_APP_TEST_CHARGE,
         },
         api_version="2020-07",
     )

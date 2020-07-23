@@ -54,9 +54,8 @@ class CreateAnnualChargeView(ShopifyLoginRequiredMixin, View):
     def get(self, request):
         confirmation_url = pricing.create_annual_charge(request, request.user)
 
-        return render(
-            request, "billing/redirect.html", {"redirect": confirmation_url}
-        )
+        return render(request, "billing/redirect.html", {"redirect": confirmation_url})
+
 
 class ActivateChargeView(ShopifyLoginRequiredMixin, View):
 
@@ -70,6 +69,8 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
                 )
                 if charge.status == "accepted":
                     charge.activate()
+                    return redirect(settings.BILLING_REDIRECT_URL)
+                if charge.status == "active":
                     return redirect(settings.BILLING_REDIRECT_URL)
             except (ResourceNotFound, ResourceInvalid):
                 pass
