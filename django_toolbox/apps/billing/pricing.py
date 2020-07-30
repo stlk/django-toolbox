@@ -116,7 +116,6 @@ def create_annual_charge(request, shop):
     subscription_pricing = calculate_subscription_pricing(subscription_node)
 
     annual_subscription_price = subscription_pricing["annual_subscription_price"]
-    trial_days = subscription_node["trialDays"]
     name = subscription_node["name"]
     return_url = request.build_absolute_uri(reverse("billing:activate-charge"))
     content = run_query(
@@ -126,7 +125,7 @@ def create_annual_charge(request, shop):
         variables={
             "name": f"{name} - Annual",
             "return_url": return_url,
-            "trial_days": trial_days,
+            "trial_days": 0,
             "amount": str(annual_subscription_price),
             "test": settings.SHOPIFY_APP_TEST_CHARGE,
         },

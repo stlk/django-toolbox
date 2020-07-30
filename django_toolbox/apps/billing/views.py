@@ -1,12 +1,13 @@
-import shopify
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render, reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
-from pyactiveresource.connection import ResourceNotFound, ResourceInvalid
+from pyactiveresource.connection import ResourceInvalid, ResourceNotFound
+import shopify
 
 from . import pricing
 from .forms import RecurringApplicationChargeForm
