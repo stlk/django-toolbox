@@ -51,13 +51,6 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
         return redirect(settings.BILLING_REDIRECT_URL)
 
 
-class CreateAnnualChargeView(ShopifyLoginRequiredMixin, View):
-    def get(self, request):
-        confirmation_url = pricing.create_annual_charge(request, request.user)
-
-        return render(request, "billing/redirect.html", {"redirect": confirmation_url})
-
-
 class ActivateChargeView(ShopifyLoginRequiredMixin, View):
 
     template_name = "billing/charge-result.html"
