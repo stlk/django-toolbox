@@ -92,19 +92,21 @@ def calculate_subscription_pricing(subscription_node):
     }
 
 
+def build_return_url(request, shop):
+    return request.build_absolute_uri(
+        reverse("billing:activate-charge")
+        + f"?myshopify_domain={shop.myshopify_domain}"
+    )
+
+
 def create_charge(request, shop):
     price, trial_days, name = settings.BILLING_FUNCTION(shop)
-    if request.session.get("promo_code") == "carson":
-        name = f"{name} - Carson Promo"
-        price = price * 0.75
 
     return shopify.RecurringApplicationCharge.create(
         {
             "name": name,
             "price": price,
-            "return_url": request.build_absolute_uri(
-                reverse("billing:activate-charge")
-            ),
+            "return_url": build_return_url(request, request.user),
             "trial_days": trial_days,
             "test": settings.SHOPIFY_APP_TEST_CHARGE,
         }
@@ -117,14 +119,13 @@ def create_annual_charge(request, shop):
 
     annual_subscription_price = subscription_pricing["annual_subscription_price"]
     name = subscription_node["name"]
-    return_url = request.build_absolute_uri(reverse("billing:activate-charge"))
     content = run_query(
         shop.token,
         shop.myshopify_domain,
         ANNUAL_CHARGE_MUTATION,
         variables={
             "name": f"{name} - Annual",
-            "return_url": return_url,
+            "return_url": build_return_url(request, shop),
             "trial_days": 0,
             "amount": str(annual_subscription_price),
             "test": settings.SHOPIFY_APP_TEST_CHARGE,

@@ -10,6 +10,9 @@ class ActivateChargeViewTest(ShopifyViewTest):
         charge_find.return_value.status = "accepted"
         charge_find.return_value.attributes = {"status": "accepted"}
 
-        response = self.client.get(reverse("billing:activate-charge") + "?charge_id=1")
+        response = self.client.get(
+            reverse("billing:activate-charge")
+            + f"?charge_id=1&myshopify_domain={self.shop.myshopify_domain}"
+        )
 
         self.assertRedirects(response, expected_url="/success/")

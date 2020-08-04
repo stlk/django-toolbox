@@ -1,5 +1,5 @@
+from django_toolbox.apps.billing.pricing import build_return_url
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render, reverse
@@ -51,12 +51,18 @@ class CreateChargeView(ShopifyLoginRequiredMixin, View):
         return redirect(settings.BILLING_REDIRECT_URL)
 
 
-class ActivateChargeView(ShopifyLoginRequiredMixin, View):
+class ActivateChargeView(View):
 
     template_name = "billing/charge-result.html"
 
     def get(self, request):
-        with request.user.session:
+        myshopify_domain = request.GET.get("myshopify_domain")
+        if myshopify_domain:
+            shop = get_user_model().objects.get(myshopify_domain=myshopify_domain)
+        else:
+            shop = request.user  # TODO: Remove on next release
+
+        with shop.session:
             try:
                 charge = shopify.RecurringApplicationCharge.find(
                     request.GET["charge_id"]
@@ -69,13 +75,7 @@ class ActivateChargeView(ShopifyLoginRequiredMixin, View):
             except (ResourceNotFound, ResourceInvalid):
                 pass
 
-        return render(request, self.template_name, {"shop": self.shop})
-
-
-class PromoCodeView(View):
-    def get(self, request, code):
-        request.session["promo_code"] = code
-        return redirect(reverse("billing:create-charge"))
+        return render(request, self.template_name, {})
 
 
 @method_decorator(staff_member_required, name="dispatch")
@@ -110,9 +110,7 @@ class GenerateChargeView(FormView):
                 {
                     "name": data["name"],
                     "price": str(data["price"]),
-                    "return_url": self.request.build_absolute_uri(
-                        reverse("billing:activate-charge")
-                    ),
+                    "return_url": build_return_url(self.request, shop),
                     "trial_days": data["trial_days"],
                     "test": settings.SHOPIFY_APP_TEST_CHARGE,
                 }
