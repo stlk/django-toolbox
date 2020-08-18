@@ -29,5 +29,5 @@ def override_login(request):
     """
     if request.user.is_staff:
         request.session["shop_id"] = request.GET["shop_id"]
-        
-    return HttpResponseRedirect("/dashboard/analytics")
+
+    return HttpResponseRedirect("/dashboard/analytics?disable_redirect=1")
