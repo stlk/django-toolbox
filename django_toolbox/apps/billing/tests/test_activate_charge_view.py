@@ -15,4 +15,4 @@ class ActivateChargeViewTest(ShopifyViewTest):
             + f"?charge_id=1&myshopify_domain={self.shop.myshopify_domain}"
         )
 
-        self.assertRedirects(response, expected_url="/success/")
+        self.assertRedirects(response, expected_url="/success/?shop=test.myshopify.com")

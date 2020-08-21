@@ -14,6 +14,12 @@ from .forms import RecurringApplicationChargeForm
 from .mixins import ShopifyLoginRequiredMixin
 
 
+def redirect_to_return_url(myshopify_domain):
+    return redirect(
+        reverse(settings.BILLING_REDIRECT_URL) + f"?shop={myshopify_domain}"
+    )
+
+
 class CreateChargeView(ShopifyLoginRequiredMixin, View):
     def set_currency(self, user):
         if hasattr(user, "currency"):
@@ -57,10 +63,7 @@ class ActivateChargeView(View):
 
     def get(self, request):
         myshopify_domain = request.GET.get("myshopify_domain")
-        if myshopify_domain:
-            shop = get_user_model().objects.get(myshopify_domain=myshopify_domain)
-        else:
-            shop = request.user  # TODO: Remove on next release
+        shop = get_user_model().objects.get(myshopify_domain=myshopify_domain)
 
         with shop.session:
             try:
@@ -69,9 +72,9 @@ class ActivateChargeView(View):
                 )
                 if charge.status == "accepted":
                     charge.activate()
-                    return redirect(settings.BILLING_REDIRECT_URL)
+                    return redirect_to_return_url(myshopify_domain)
                 if charge.status == "active":
-                    return redirect(settings.BILLING_REDIRECT_URL)
+                    return redirect_to_return_url(myshopify_domain)
             except (ResourceNotFound, ResourceInvalid):
                 pass
 

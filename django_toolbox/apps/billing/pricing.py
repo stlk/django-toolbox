@@ -99,7 +99,7 @@ def build_return_url(request, shop):
     )
 
 
-def create_charge(request, shop):
+def create_charge(request, shop: shopify.Shop):
     price, trial_days, name = settings.BILLING_FUNCTION(shop)
 
     return shopify.RecurringApplicationCharge.create(
