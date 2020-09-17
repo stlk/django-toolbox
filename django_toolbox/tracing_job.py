@@ -10,9 +10,10 @@ class TracingJob(Job):
         elasticapm.set_custom_context(context)
         try:
             super().perform()
-            client.end_transaction(self.func_name, "SUCCESS")
+            client.end_transaction(self.func_name, "success")
         except:
             client.capture_exception()
+            client.end_transaction(self.func_name, "failure")
             raise
         finally:
             client.close()
