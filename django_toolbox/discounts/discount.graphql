@@ -1,0 +1,165 @@
+query DiscountNode($code: String!) {
+  codeDiscountNodeByCode(code: $code) {
+    codeDiscount {
+      __typename
+      ... on DiscountCodeBasic {
+        usageLimit
+        asyncUsageCount
+        minimumRequirement {
+          ... on DiscountMinimumSubtotal {
+            greaterThanOrEqualToSubtotal {
+              amount
+            }
+          }
+          ... on DiscountMinimumQuantity {
+            greaterThanOrEqualToQuantity
+          }
+        }
+        status
+        customerGets {
+          items {
+            ... on AllDiscountItems {
+              allItems
+            }
+            ... on DiscountCollections {
+              collections(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+            ... on DiscountProducts {
+              productVariants(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+              products(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+          value {
+            ... on DiscountAmount {
+              appliesOnEachItem
+              amount {
+                amount
+                currencyCode
+              }
+            }
+            ... on DiscountPercentage {
+              percentage
+            }
+          }
+        }
+      }
+      ... on DiscountCodeBxgy {
+        status
+        usageLimit
+        asyncUsageCount
+        customerBuys {
+          items {
+            ... on AllDiscountItems {
+              allItems
+            }
+            ... on DiscountCollections {
+              collections(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+            ... on DiscountProducts {
+              productVariants(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+              products(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+          value {
+            ... on DiscountPurchaseAmount {
+              amount
+            }
+            ... on DiscountQuantity {
+              quantity
+            }
+          }
+        }
+        customerGets {
+          items {
+            ... on AllDiscountItems {
+              allItems
+            }
+            ... on DiscountCollections {
+              collections(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+            ... on DiscountProducts {
+              productVariants(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+              products(first: 100) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+          value {
+            ... on DiscountAmount {
+              appliesOnEachItem
+              amount {
+                amount
+                currencyCode
+              }
+            }
+            ... on DiscountPercentage {
+              percentage
+            }
+            ... on DiscountOnQuantity {
+              quantity {
+                quantity
+              }
+              effect {
+                ... on DiscountPercentage {
+                  percentage
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

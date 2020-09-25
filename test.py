@@ -48,6 +48,8 @@ django.setup()
 from django.test.runner import DiscoverRunner
 
 test_runner = DiscoverRunner()
-failures = test_runner.run_tests(["test_graphql_client", "django_toolbox.apps.billing"])
+failures = test_runner.run_tests(
+    ["test_graphql_client", "django_toolbox.apps.billing", "django_toolbox.discounts"]
+)
 if failures:
     sys.exit(failures)
