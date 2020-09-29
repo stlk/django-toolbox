@@ -474,12 +474,13 @@ def get_items_ids(items_node: dict, item_node_key: str):
 def get_discount_node(shop: AuthAppShopUser, discount_code: str):
     # Crude security measure to prevent GraphQL injection
     discount_code = discount_code.replace('"', "").replace("{", "")
+    discount_query_file = Path(__file__).parent / "discount.graphql"
 
     try:
         content = run_query(
             shop.token,
             shop.myshopify_domain,
-            Path("django_toolbox/discounts/discount.graphql").read_text(),
+            discount_query_file.read_text(),
             {"code": discount_code},
         )
         return content["data"]["codeDiscountNodeByCode"]
