@@ -16,3 +16,6 @@ django-rq = "*"
 
 [requires]
 python_version = "3.8"
+
+[packages]
+python-intercom = "*"
