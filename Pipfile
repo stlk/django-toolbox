@@ -19,3 +19,6 @@ python_version = "3.8"
 
 [scripts]
 test = "python test.py"
+
+[packages]
+python-intercom = "*"
