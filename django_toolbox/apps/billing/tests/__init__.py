@@ -28,5 +28,5 @@ class ShopifyViewTest(TestCase):
         self.shop = AuthAppShopUser.objects.create(
             myshopify_domain="test.myshopify.com"
         )
-        # self.shop.settings.discounts_enabled = True
+        self.shop.settings.discounts_enabled = True
         self.client.force_login(self.shop)
