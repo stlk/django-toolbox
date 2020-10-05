@@ -5,7 +5,7 @@ from intercom.client import Client
 
 class IntercomWebhooks:
     def __init__(self, app):
-        self.app = app
+        self.app = settings.APP_NAME
         self.intercom = Client(personal_access_token=settings.INTERCOM_ACCESS_TOKEN)
 
     def create_intercom_event(self, myshopify_domain, event_name):
