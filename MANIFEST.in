@@ -1,2 +1,3 @@
 recursive-include django_toolbox/apps/billing/templates/billing/ *
 recursive-include django_toolbox/discounts/ *
+recursive-include django_toolbox/apps/backoffice/templates/backoffice/ *
