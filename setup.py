@@ -6,7 +6,12 @@ setup(
     author="Josef Rousek",
     author_email="josef@rousek.name",
     packages=find_packages(
-        include=["django_toolbox", "django_toolbox.apps", "django_toolbox.apps.billing"]
+        include=[
+            "django_toolbox",
+            "django_toolbox.apps",
+            "django_toolbox.apps.billing",
+            "django_toolbox.apps.backoffice",
+        ]
     ),
     include_package_data=True,
     url="https://github.com/stlk/django-toolbox",
