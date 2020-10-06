@@ -129,7 +129,7 @@ def check_and_modify_theme_file(main_theme_id):
         return True
 
 
-def theme_update():
+def update_theme():
     main_theme_id = get_main_theme_id()
     theme_modified = check_and_modify_theme_file(main_theme_id)
     if theme_modified:
@@ -140,4 +140,4 @@ def update_theme_task(myshopify_domain: str):
     user = get_user_model()
     shop = user.objects.get(myshopify_domain=myshopify_domain)
     with shop.session:
-        theme_update()
+        update_theme()
