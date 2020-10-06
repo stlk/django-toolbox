@@ -13,6 +13,7 @@ mutation createDraftOrder($input: DraftOrderInput!) {
   draftOrderCreate(input: $input) {
     draftOrder {
       legacyResourceId
+      id
       invoiceUrl
     }
     userErrors {
@@ -43,10 +44,11 @@ def execute_create_draft_order(
     draft_order = run_query(
         shop.token, shop.myshopify_domain, CREATE_DRAFT_ORDER_MUTATION, variables
     )
-
     draft_order_create = draft_order["data"]["draftOrderCreate"]
     assert draft_order_create["draftOrder"], draft_order_create["userErrors"]
-    draft_order_id = int(draft_order_create["draftOrder"]["legacyResourceId"])
+    draft_order_id = int(
+        draft_order_create["draftOrder"]["id"].replace("gid://shopify/DraftOrder/", "")
+    )
     invoice_url = draft_order_create["draftOrder"]["invoiceUrl"]
 
     # FIXME: Waiting for Shopify to provide a way to tell us we need to wait before invoice is ready.
