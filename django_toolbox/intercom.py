@@ -4,7 +4,7 @@ from intercom.client import Client
 
 
 class IntercomWebhooks:
-    def __init__(self, app):
+    def __init__(self):
         self.app = settings.APP_NAME
         self.intercom = Client(personal_access_token=settings.INTERCOM_ACCESS_TOKEN)
 
