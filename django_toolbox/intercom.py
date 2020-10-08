@@ -9,7 +9,7 @@ intercom = Client(personal_access_token=settings.INTERCOM_ACCESS_TOKEN)
 
 def create_intercom_event(myshopify_domain, event_name):
     intercom.events.create(
-        event_name=f"{APP_NAME}-uninstalled",
+        event_name=event_name,
         created_at=int(time.mktime(time.localtime())),
         user_id=myshopify_domain,
     )
@@ -41,7 +41,6 @@ def app_uninstalled(myshopify_domain):
             created_at=int(time.mktime(time.localtime())),
             user_id=myshopify_domain,
         )
-        create_intercom_event(myshopify_domain, f"{APP_NAME}-uninstalled")
         intercom.tags.untag(
             name=f"{APP_NAME}-annual", users=[{"user_id": myshopify_domain}]
         )
