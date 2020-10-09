@@ -145,7 +145,7 @@ class ConfigurationView(FormView):
 
     def get_success_url(self):
         shop_id = self.request.GET.get("shop_id")
-        return reverse("backoffice:manage-script", kwargs={"shop_id": shop_id})
+        return reverse("backoffice-common:manage-script", kwargs={"shop_id": shop_id})
 
     def get_initial(self):
         initial = {}
