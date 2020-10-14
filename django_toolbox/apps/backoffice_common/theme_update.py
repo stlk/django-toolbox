@@ -67,11 +67,7 @@ def update_config_asset(main_theme_id, value):
     return value
 
 
-def update_snippet(main_theme_id, enable_document_listener):
-    javascript = ""
-    if enable_document_listener:
-        javascript = f"{APP_NAME.upper()}_DOCUMENT_LISTENER = true;"
-
+def update_snippet(main_theme_id, javascript):
     value = f"""
     <!-- {APP_NAME}-script -->
     <script>
@@ -129,15 +125,16 @@ def check_and_modify_theme_file(main_theme_id):
         return True
 
 
-def update_theme():
+def update_theme(javascript):
     main_theme_id = get_main_theme_id()
     theme_modified = check_and_modify_theme_file(main_theme_id)
+
     if theme_modified:
-        update_snippet(main_theme_id, True)
+        update_snippet(main_theme_id, javascript)
 
 
-def update_theme_task(myshopify_domain: str):
+def update_theme_task(myshopify_domain: str, javascript: str):
     user = get_user_model()
     shop = user.objects.get(myshopify_domain=myshopify_domain)
     with shop.session:
-        update_theme()
+        update_theme(javascript)
