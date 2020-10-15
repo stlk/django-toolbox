@@ -10,7 +10,6 @@ setup(
             "django_toolbox",
             "django_toolbox.apps",
             "django_toolbox.apps.billing",
-            "django_toolbox.apps.backoffice",
         ]
     ),
     include_package_data=True,
