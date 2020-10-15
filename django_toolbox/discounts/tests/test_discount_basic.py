@@ -1,6 +1,7 @@
 import copy
 from unittest.mock import patch
 
+from django.conf import settings
 import responses
 
 from django_toolbox.apps.billing.tests import ShopifyViewTest
@@ -10,6 +11,7 @@ from ..collections import DraftOrderResponse
 from ..draft_order import create_draft_order
 
 
+APP_NAME = settings.APP_NAME
 PRODUCTS_IN_COLLECTIONS = {
     "_159609389100": {
         "_4413823025196": True,
@@ -225,7 +227,7 @@ VARIABLES_INPUT = {
                 "appliedDiscount": None,
             }
         ],
-        "tags": "candybox",
+        "tags": APP_NAME,
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
@@ -255,7 +257,7 @@ MULTIPLE_VARIABLES_INPUT = {
                 "appliedDiscount": None,
             },
         ],
-        "tags": "candybox",
+        "tags": APP_NAME,
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
