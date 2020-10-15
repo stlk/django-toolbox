@@ -1,10 +1,11 @@
 import time
 from typing import List, Tuple
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from ..shopify_graphql import run_query
-from .collections import LineItem, DraftOrderResponse
+from .collections import DraftOrderResponse, LineItem
 from .discount import get_discount
 
 
@@ -82,7 +83,7 @@ def create_draft_order(shop: AuthAppShopUser, data, get_offers_line_items):
     variables = {
         "input": {
             "lineItems": line_items,
-            "tags": "candybox",
+            "tags": settings.APP_NAME,
             "customAttributes": transform_attributes(cart["attributes"]),
             "appliedDiscount": discount.apply_all_items_discount(),
             "note": cart["note"],
