@@ -47,6 +47,7 @@ VARIABLES_INPUT_CART_PRODUCT_QUANTITY_SAME_AS_OFFER_PRODUCT_QUANTITY = {
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
+        "metafields": [],
     }
 }
 
@@ -76,6 +77,7 @@ VARIABLES_INPUT_CART_PRODUCT_QUANTITY_OVER_OFFER_PRODUCT_QUANTITY = {
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
+        "metafields": [],
     }
 }
 
@@ -99,6 +101,7 @@ VARIABLES_INPUT_CART_PRODUCT_QUANTITY_UNDER_OFFER_PRODUCT_QUANTITY = {
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
+        "metafields": [],
     }
 }
 
@@ -223,7 +226,7 @@ DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_COLLECTION_GETS_COLLECTION = {
 
 
 def get_offers_line_items(shop, data):
-    return []
+    return [], []
 
 
 class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
