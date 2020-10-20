@@ -231,6 +231,7 @@ VARIABLES_INPUT = {
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
+        "metafields": [],
     }
 }
 
@@ -261,6 +262,7 @@ MULTIPLE_VARIABLES_INPUT = {
         "note": "",
         "appliedDiscount": None,
         "shippingAddress": None,
+        "metafields": [],
     }
 }
 
@@ -270,7 +272,7 @@ DRAFT_ORDER_CREATE_RESPONSE = DraftOrderResponse(
 
 
 def get_offers_line_items(shop, data):
-    return []
+    return [], []
 
 
 class CreateDraftOrderDiscountBasicViewTest(ShopifyViewTest):
