@@ -77,8 +77,8 @@ def create_draft_order(shop: AuthAppShopUser, data, get_offers_line_items):
         )
         for cart_line in cart["items"]
     ]
-    line_items = list(discount.apply_discount_to_line_items(line_and_cart_items))
-    line_items += get_offers_line_items(shop, data)
+    line_items, tracking_data = get_offers_line_items(shop, data)
+    line_items += list(discount.apply_discount_to_line_items(line_and_cart_items))
 
     variables = {
         "input": {
@@ -88,6 +88,7 @@ def create_draft_order(shop: AuthAppShopUser, data, get_offers_line_items):
             "appliedDiscount": discount.apply_all_items_discount(),
             "note": cart["note"],
             "shippingAddress": data.get("shippingAddress"),
+            "metafields": tracking_data,
         }
     }
     response = execute_create_draft_order(shop, variables)
