@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-black = "==19.10b0"
 responses = "*"
 requests = "*"
 pre-commit = "*"
