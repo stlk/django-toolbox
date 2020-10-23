@@ -528,8 +528,7 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
         }
         create_draft_order(self.shop, data, get_offers_line_items)
         variables = execute_mock.call_args[0][1]
-        print(variables)
 
         line_items = variables["input"]["lineItems"]
         self.assertEqual(line_items[0]["appliedDiscount"]["value"], 15.0)
-        self.assertIsNone(line_items[0]["appliedDiscount"])
+        self.assertIsNone(line_items[1]["appliedDiscount"])
