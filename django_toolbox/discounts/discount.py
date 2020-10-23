@@ -12,7 +12,6 @@ from .collections import (
     get_items_in_collections,
     is_item_covered,
 )
-from django_toolbox.discounts import discount
 
 
 AuthAppShopUser = get_user_model()

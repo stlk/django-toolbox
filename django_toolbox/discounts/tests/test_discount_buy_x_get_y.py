@@ -224,6 +224,42 @@ DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_COLLECTION_GETS_COLLECTION = {
     }
 }
 
+DISCOUNT_DATA_PERCENTAGE_FOR_SPECIFIC_PRODUCT_ID = {
+    "codeDiscountNodeByCode": {
+        "codeDiscount": {
+            "__typename": "DiscountCodeBxgy",
+            "status": "ACTIVE",
+            "usageLimit": None,
+            "asyncUsageCount": 61,
+            "customerBuys": {
+                "items": {
+                    "productVariants": {"edges": []},
+                    "products": {
+                        "edges": [
+                            {"node": {"id": "gid:\/\/shopify\/Product\/4540446212178"}}
+                        ]
+                    },
+                },
+                "value": {"quantity": "1"},
+            },
+            "customerGets": {
+                "items": {
+                    "productVariants": {"edges": []},
+                    "products": {
+                        "edges": [
+                            {"node": {"id": "gid:\/\/shopify\/Product\/4540446212178"}}
+                        ]
+                    },
+                },
+                "value": {
+                    "quantity": {"quantity": "1"},
+                    "effect": {"percentage": 0.15},
+                },
+            },
+        }
+    }
+}
+
 
 def get_offers_line_items(shop, data):
     return [], []
@@ -451,3 +487,49 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
         ]
         self.maxDiff = None
         self.assertDictEqual(variables, expected_input)
+
+    @responses.activate
+    @patch(
+        "django_toolbox.discounts.draft_order.execute_create_draft_order",
+        return_value=DRAFT_ORDER_CREATE_RESPONSE,
+    )
+    def test_applies_discount_two_line_items_with_same_product_id_but_different_variant_id(
+        self, execute_mock
+    ):
+        mock_response(DISCOUNT_DATA_PERCENTAGE_FOR_SPECIFIC_PRODUCT_ID)
+        data = {
+            "shop": self.shop.myshopify_domain,
+            "cart": {
+                "items": [
+                    {
+                        "quantity": 1,
+                        "variant_id": 1,
+                        "properties": None,
+                        "line_price": 25000,
+                        "product_id": 4540446212178,
+                    },
+                    {
+                        "quantity": 1,
+                        "variant_id": 2,
+                        "properties": None,
+                        "line_price": 25000,
+                        "product_id": 4540446212178,
+                    },
+                ],
+                "currency": "CZK",
+                "total_price": 50000,
+                "item_count": 2,
+                "token": "cart_token",
+                "attributes": {"greeting": "they"},
+                "note": "",
+            },
+            "offers": [],
+            "discount_code": "30PERCENTOFF",
+        }
+        create_draft_order(self.shop, data, get_offers_line_items)
+        variables = execute_mock.call_args[0][1]
+        print(variables)
+
+        line_items = variables["input"]["lineItems"]
+        self.assertEqual(line_items[0]["appliedDiscount"]["value"], 15.0)
+        self.assertIsNone(line_items[0]["appliedDiscount"])
