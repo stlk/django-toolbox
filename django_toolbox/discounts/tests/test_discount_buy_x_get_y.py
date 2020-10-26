@@ -8,6 +8,8 @@ from django_toolbox.apps.billing.tests import ShopifyViewTest
 from ..collections import DraftOrderResponse
 from ..draft_order import create_draft_order
 
+from . import utils
+
 APP_NAME = settings.APP_NAME
 
 PRODUCTS_IN_COLLECTIONS = {
@@ -156,40 +158,6 @@ DISCOUNT_DATA_CUSTOMER_BUYS_MIN_AMOUNT_VARIANT_GETS_VARIANT = {
     }
 }
 
-DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_PRODUCT_GETS_PRODUCT = {
-    "codeDiscountNodeByCode": {
-        "codeDiscount": {
-            "__typename": "DiscountCodeBxgy",
-            "appliesOncePerCustomer": False,
-            "status": "ACTIVE",
-            "title": "30PERCENTOFF",
-            "usageLimit": None,
-            "usesPerOrderLimit": None,
-            "customerBuys": {
-                "items": {
-                    "productVariants": {"edges": []},
-                    "products": {
-                        "edges": [
-                            {"node": {"id": "gid://shopify/Product/4413823025196"}}
-                        ]
-                    },
-                },
-                "value": {"quantity": "2"},
-            },
-            "customerGets": {
-                "items": {
-                    "productVariants": {"edges": []},
-                    "products": {
-                        "edges": [
-                            {"node": {"id": "gid://shopify/Product/4413823025197"}}
-                        ]
-                    },
-                },
-                "value": {"quantity": {"quantity": "1"}, "effect": {"percentage": 0.3}},
-            },
-        }
-    }
-}
 
 DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_COLLECTION_GETS_COLLECTION = {
     "codeDiscountNodeByCode": {
@@ -219,42 +187,6 @@ DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_COLLECTION_GETS_COLLECTION = {
                     }
                 },
                 "value": {"quantity": {"quantity": "1"}, "effect": {"percentage": 0.3}},
-            },
-        }
-    }
-}
-
-DISCOUNT_DATA_PERCENTAGE_FOR_SPECIFIC_PRODUCT_ID = {
-    "codeDiscountNodeByCode": {
-        "codeDiscount": {
-            "__typename": "DiscountCodeBxgy",
-            "status": "ACTIVE",
-            "usageLimit": None,
-            "asyncUsageCount": 61,
-            "customerBuys": {
-                "items": {
-                    "productVariants": {"edges": []},
-                    "products": {
-                        "edges": [
-                            {"node": {"id": "gid:\/\/shopify\/Product\/4540446212178"}}
-                        ]
-                    },
-                },
-                "value": {"quantity": "1"},
-            },
-            "customerGets": {
-                "items": {
-                    "productVariants": {"edges": []},
-                    "products": {
-                        "edges": [
-                            {"node": {"id": "gid:\/\/shopify\/Product\/4540446212178"}}
-                        ]
-                    },
-                },
-                "value": {
-                    "quantity": {"quantity": "1"},
-                    "effect": {"percentage": 0.15},
-                },
             },
         }
     }
@@ -330,7 +262,14 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
     def test_applies_discount_customer_buys_min_amount_product_customer_gets_product(
         self, execute_mock
     ):
-        mock_response(DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_PRODUCT_GETS_PRODUCT)
+        discount_response = utils.discount_buys_defined_product_response_factory(
+            buys_product_id=4413823025196,
+            buys_min_quantity=2,
+            gets_product_id=4413823025197,
+            gets_quantity=1,
+            discount_percentage=0.3,
+        )
+        mock_response(discount_response)
         data = {
             "shop": self.shop.myshopify_domain,
             "cart": {
@@ -386,7 +325,14 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
     def test_not_applies_discount_customer_buys_min_quantity_product_customer_gets_product(
         self, execute_mock
     ):
-        mock_response(DISCOUNT_DATA_CUSTOMER_BUYS_MIN_QUANTITY_PRODUCT_GETS_PRODUCT)
+        discount_response = utils.discount_buys_defined_product_response_factory(
+            buys_product_id=4413823025196,
+            buys_min_quantity=2,
+            gets_product_id=4413823025197,
+            gets_quantity=1,
+            discount_percentage=0.3,
+        )
+        mock_response(discount_response)
         data = {
             "shop": self.shop.myshopify_domain,
             "cart": {
@@ -496,26 +442,37 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
     def test_applies_discount_two_line_items_with_same_product_id_but_different_variant_id(
         self, execute_mock
     ):
-        mock_response(DISCOUNT_DATA_PERCENTAGE_FOR_SPECIFIC_PRODUCT_ID)
-        data = {
+        product_id = 4540446212178
+        discount_response = utils.discount_buys_defined_product_response_factory(
+            buys_product_id=product_id,
+            buys_min_quantity=1,
+            gets_product_id=product_id,
+            gets_quantity=1,
+            discount_percentage=0.15,
+        )
+        mock_response(discount_response)
+
+        cart_items = [
+            {
+                "quantity": 1,
+                "variant_id": 1,
+                "properties": None,
+                "line_price": 25000,
+                "product_id": product_id,
+            },
+            {
+                "quantity": 1,
+                "variant_id": 2,
+                "properties": None,
+                "line_price": 25000,
+                "product_id": product_id,
+            },
+        ]
+
+        cart_data = {
             "shop": self.shop.myshopify_domain,
             "cart": {
-                "items": [
-                    {
-                        "quantity": 1,
-                        "variant_id": 1,
-                        "properties": None,
-                        "line_price": 25000,
-                        "product_id": 4540446212178,
-                    },
-                    {
-                        "quantity": 1,
-                        "variant_id": 2,
-                        "properties": None,
-                        "line_price": 25000,
-                        "product_id": 4540446212178,
-                    },
-                ],
+                "items": cart_items,
                 "currency": "CZK",
                 "total_price": 50000,
                 "item_count": 2,
@@ -526,7 +483,7 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
             "offers": [],
             "discount_code": "30PERCENTOFF",
         }
-        create_draft_order(self.shop, data, get_offers_line_items)
+        create_draft_order(self.shop, cart_data, get_offers_line_items)
         variables = execute_mock.call_args[0][1]
 
         line_items = variables["input"]["lineItems"]
