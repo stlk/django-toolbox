@@ -8,5 +8,5 @@ urlpatterns = [
     path("logout", views.logout, name="logout"),
     path("disconnect", views.disconnect, name="disconnect"),
     path("", include("social_django.urls", namespace="social")),
-    path("user-analytics", views.override_login, name="user-analytics")
+    path("user-analytics", views.override_login, name="user-analytics"),
 ]

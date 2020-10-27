@@ -12,7 +12,6 @@ from .collections import (
     get_items_in_collections,
     is_item_covered,
 )
-from django_toolbox.discounts import discount
 
 
 AuthAppShopUser = get_user_model()
@@ -91,7 +90,10 @@ class DiscountBuyXGetY(Discount):
             self.customer_gets_collections = get_items_ids(
                 customer_gets_items, "collections"
             )
-        self.discount_quantity = customer_gets_value_type_node["quantity"]["quantity"]
+        self.discount_quantity = int(
+            customer_gets_value_type_node["quantity"]["quantity"]
+        )
+        self.remaining_discount_quantity = self.discount_quantity
         self.discount_value = customer_gets_value_type_node["effect"]["percentage"]
 
         # target specific items, specific variants or specific collection
@@ -222,6 +224,9 @@ class DiscountBuyXGetY(Discount):
             return True
 
     def apply_discount_to_line_item(self, line_item: LineItem, cart_line: CartLine):
+        if self.remaining_discount_quantity <= 0:
+            yield line_item
+            return
         if not self.customer_gets_items and not self.customer_gets_variants:
             yield line_item
             return
@@ -232,27 +237,34 @@ class DiscountBuyXGetY(Discount):
             yield line_item
             return
 
-        if int(self.discount_quantity) > cart_line["quantity"]:
-            yield line_item
-            return
-
         # Shopify returns discount as 0 - 1 but draft order discount application expects values 0 - 100
         discount_value = self.discount_value * 100
 
-        if int(self.discount_quantity) < cart_line["quantity"]:
+        if self.remaining_discount_quantity >= cart_line["quantity"]:
+            self.remaining_discount_quantity -= cart_line["quantity"]
+            line_item["appliedDiscount"] = {
+                "title": self.discount_code,
+                "value": discount_value,
+                "valueType": "PERCENTAGE",
+            }
+            yield line_item
+            return
+
+        else:
             yield LineItem(
-                quantity=cart_line["quantity"] - int(self.discount_quantity),
+                quantity=cart_line["quantity"] - self.remaining_discount_quantity,
                 variantId=line_item["variantId"],
                 customAttributes=line_item["customAttributes"],
                 appliedDiscount=None,
             )
 
-        line_item["quantity"] = int(self.discount_quantity)
+        line_item["quantity"] = self.remaining_discount_quantity
         line_item["appliedDiscount"] = {
             "title": self.discount_code,
             "value": discount_value,
             "valueType": "PERCENTAGE",
         }
+        self.remaining_discount_quantity = 0
         yield line_item
 
     def apply_discount_to_line_items(self, line_and_cart_items):

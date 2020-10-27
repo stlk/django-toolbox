@@ -62,7 +62,6 @@ def create_draft_order(shop: AuthAppShopUser, data, get_offers_line_items):
     cart = data["cart"]
     discount_code = data.get("discount_code")
     discount = get_discount(shop, discount_code, cart)
-
     line_and_cart_items: List[Tuple[LineItem, dict]] = [
         (
             LineItem(
