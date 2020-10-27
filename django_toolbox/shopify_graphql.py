@@ -82,13 +82,14 @@ def run_query(*args, **kwargs):
         try:
             with elasticapm.capture_span("GraphQL Query", span_type="graphql") as span:
                 content = _run_query(*args, **kwargs)
-                meta_data = _get_query_meta_data(content)
-                if meta_data:
-                    span.labels = {
-                        "query_id": meta_data["query_id"],
-                        "requested_query_cost": meta_data["requested_query_cost"],
-                        "actual_query_cost": meta_data["actual_query_cost"],
-                    }
+                if span:
+                    meta_data = _get_query_meta_data(content)
+                    if meta_data:
+                        span.labels = {
+                            "query_id": meta_data["query_id"],
+                            "requested_query_cost": meta_data["requested_query_cost"],
+                            "actual_query_cost": meta_data["actual_query_cost"],
+                        }
 
                 return content
         except GraphQLResponseError as e:
