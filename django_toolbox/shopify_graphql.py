@@ -31,6 +31,24 @@ def _check_for_errors(content):
         raise GraphQLResponseError(errors)
 
 
+def _get_query_meta_data(content):
+    try:
+        query_id = list(content["data"].keys())[0]
+        requested_query_cost = content["extensions"]["cost"]["requestedQueryCost"]
+        actual_query_cost = content["extensions"]["cost"]["actualQueryCost"]
+        currently_available = content["extensions"]["cost"]["throttleStatus"][
+            "currentlyAvailable"
+        ]
+        return {
+            "query_id": query_id,
+            "requested_query_cost": requested_query_cost,
+            "actual_query_cost": actual_query_cost,
+            "currently_available": currently_available,
+        }
+    except (KeyError, IndexError):
+        return None
+
+
 def _run_query(
     token: str,
     myshopify_domain: str,
@@ -50,22 +68,6 @@ def _run_query(
     response = requests.post(url, headers=headers, json=data, timeout=10)
     response.raise_for_status()
     content = response.json()
-    query_id = list(content['data'].keys())[0]
-
-    requested_query_cost = content['extensions']['cost']['requestedQueryCost']
-    actual_query_cost = content['extensions']['cost']['actualQueryCost']
-    currently_available = content['extensions']['cost']['throttleStatus']['currentlyAvailable']
-
-    debug_data = {
-        'query_id': query_id,
-        'requested_query_cost': requested_query_cost,
-        'actual_query_cost': actual_query_cost,
-        'currently_available': currently_available,
-    }
-    elasticapm.label(**debug_data)
-    print(debug_data)
-    logger.info(debug_data)
-
     _check_for_errors(content)
     _check_throttle_limits(
         content,
@@ -78,7 +80,17 @@ def run_query(*args, **kwargs):
     retry_count = 0
     while True:
         try:
-            return _run_query(*args, **kwargs)
+            with elasticapm.capture_span("GraphQL Query", span_type="graphql") as span:
+                content = _run_query(*args, **kwargs)
+                meta_data = _get_query_meta_data(content)
+                if meta_data:
+                    span.labels = {
+                        "query_id": meta_data["query_id"],
+                        "requested_query_cost": meta_data["requested_query_cost"],
+                        "actual_query_cost": meta_data["actual_query_cost"],
+                    }
+
+                return content
         except GraphQLResponseError as e:
             if [error for error in e.errors if error["message"] == "Throttled"]:
                 if retry_count == 2:
