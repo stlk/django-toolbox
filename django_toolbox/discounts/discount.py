@@ -252,13 +252,13 @@ class DiscountBuyXGetY(Discount):
 
         else:
             yield LineItem(
-                quantity=self.remaining_discount_quantity,
+                quantity=cart_line["quantity"] - self.remaining_discount_quantity,
                 variantId=line_item["variantId"],
                 customAttributes=line_item["customAttributes"],
                 appliedDiscount=None,
             )
 
-        line_item["quantity"] = cart_line["quantity"] - self.remaining_discount_quantity
+        line_item["quantity"] = self.remaining_discount_quantity
         line_item["appliedDiscount"] = {
             "title": self.discount_code,
             "value": discount_value,

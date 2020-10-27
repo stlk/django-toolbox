@@ -489,3 +489,67 @@ class CreateDraftOrderDiscountBuyXGetYViewTest(ShopifyViewTest):
         line_items = variables["input"]["lineItems"]
         self.assertEqual(line_items[0]["appliedDiscount"]["value"], 15.0)
         self.assertIsNone(line_items[1]["appliedDiscount"])
+
+    @responses.activate
+    @patch(
+        "django_toolbox.discounts.draft_order.execute_create_draft_order",
+        return_value=DRAFT_ORDER_CREATE_RESPONSE,
+    )
+    def test_buys_x_gets_y_quantity(self, execute_mock):
+        discount_response = utils.discount_buys_defined_product_response_factory(
+            buys_product_id=1,
+            buys_min_quantity=2,
+            gets_product_id=2,
+            gets_quantity=2,
+            discount_percentage=0.15,
+        )
+        mock_response(discount_response)
+
+        cart_items = [
+            {
+                "quantity": 2,
+                "variant_id": 1,
+                "properties": None,
+                "line_price": 25000,
+                "product_id": 1,
+            },
+            {
+                "quantity": 10,
+                "variant_id": 2,
+                "properties": None,
+                "line_price": 25000,
+                "product_id": 2,
+            },
+        ]
+
+        cart_data = {
+            "shop": self.shop.myshopify_domain,
+            "cart": {
+                "items": cart_items,
+                "currency": "CZK",
+                "total_price": 50000,
+                "item_count": 1,
+                "token": "cart_token",
+                "attributes": {"greeting": "they"},
+                "note": "",
+            },
+            "offers": [],
+            "discount_code": "30PERCENTOFF",
+        }
+
+        create_draft_order(self.shop, cart_data, get_offers_line_items)
+        variables = execute_mock.call_args[0][1]
+
+        line_items = variables["input"]["lineItems"]
+        self.assertEqual(len(line_items), 3)
+
+        self.assertEqual(line_items[0]["variantId"], "gid://shopify/ProductVariant/1")
+        self.assertIsNone(line_items[0]["appliedDiscount"])
+
+        self.assertEqual(line_items[1]["variantId"], "gid://shopify/ProductVariant/2")
+        self.assertEqual(line_items[1]["quantity"], 8)
+        self.assertIsNone(line_items[1]["appliedDiscount"])
+
+        self.assertEqual(line_items[2]["variantId"], "gid://shopify/ProductVariant/2")
+        self.assertEqual(line_items[2]["quantity"], 2)
+        self.assertIsNotNone(line_items[2]["appliedDiscount"])
