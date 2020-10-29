@@ -87,7 +87,7 @@ def run_query(
     while True:
         try:
             with elasticapm.capture_span(
-                f"GraphQL:  {query[:50]}...", span_type="graphql", leaf=True
+                f"GraphQL: {query[:50]}...", span_type="graphql", leaf=True
             ) as span:
                 content = _run_query(
                     token, myshopify_domain, query, variables, api_version
