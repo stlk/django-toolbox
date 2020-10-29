@@ -76,12 +76,22 @@ def _run_query(
     return content
 
 
-def run_query(*args, **kwargs):
+def run_query(
+    token: str,
+    myshopify_domain: str,
+    query: str,
+    variables: dict = None,
+    api_version: str = settings.SHOPIFY_APP_API_VERSION,
+):
     retry_count = 0
     while True:
         try:
-            with elasticapm.capture_span("GraphQL Query", span_type="graphql") as span:
-                content = _run_query(*args, **kwargs)
+            with elasticapm.capture_span(
+                f"GraphQL:  {query[:50]}...", span_type="graphql", leaf=True
+            ) as span:
+                content = _run_query(
+                    token, myshopify_domain, query, variables, api_version
+                )
                 if span:
                     meta_data = _get_query_meta_data(content)
                     if meta_data:
@@ -89,6 +99,7 @@ def run_query(*args, **kwargs):
                             "query_id": meta_data["query_id"],
                             "requested_query_cost": meta_data["requested_query_cost"],
                             "actual_query_cost": meta_data["actual_query_cost"],
+                            "currently_available": meta_data["currently_available"],
                         }
 
                 return content
